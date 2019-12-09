@@ -1,8 +1,8 @@
 package gormchecker
 
 import (
+	"fmt"
 	"go/ast"
-	"go/token"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -31,8 +31,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
-		fset := token.NewFileSet()
-		ast.Print(fset, n)
+		fmt.Printf("### pos %v\n", n.Pos())
+		fmt.Println(pass.Fset.Position(n.Pos()))
+		ast.Print(pass.Fset, n)
 
 		switch n := n.(type) {
 		case *ast.Ident:

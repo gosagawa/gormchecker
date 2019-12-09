@@ -51,3 +51,9 @@ type User struct {
 	ColumnA int `json:"column_a"` // column_a
 	ColumnB int `json:"column_b"` // column_b
 }
+
+func check() {
+	db, _ := getConnection()
+	db = db.Where("column_a = xxx")
+	db = db.Where("column_a = xxx").Where("column_b = xxx")
+}
