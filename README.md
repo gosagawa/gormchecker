@@ -1,26 +1,26 @@
-# gormcheck
+# gormchecker
 
-`gormcheck` is a static analysis tool which can find wrong gorm using logic.
+`gormchecker` is a static analysis tool which can find wrong gorm using logic.
 Current state is alphe version. Only check pipeed function( make pipe is originally not wrong but my working team stop to use to make review easier).
 
 
 ## Install
 
-You can get `gormcheck` by `go get` command.
+You can get `gormchecker` by `go get` command.
 
 ```bash
-$ go get -u github.com/gosagawa/gormcheck
+$ go get -u github.com/gosagawa/gormchecker
 ```
 
 ## How to use
 
-`gormcheck` run with `go vet` as below when Go is 1.12 and higher.
+`gormchecker` run with `go vet` as below when Go is 1.12 and higher.
 
 ```bash
-$ go vet -vettool=$(which gormcheck) your_check_path
+$ go vet -vettool=$(which gormchecker) your_check_path
 ```
 
-When Go is lower than 1.12, just run `gormcheck` command with the package name (import path).
+When Go is lower than 1.12, just run `gormchecker` command with the package name (import path).
 
 ```bash
 $ gorm check your_check_path
