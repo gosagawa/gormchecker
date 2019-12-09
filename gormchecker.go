@@ -27,21 +27,26 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	nodeFilter := []ast.Node{
-		(*ast.Ident)(nil),
+		(*ast.CallExpr)(nil),
 	}
+	functions := make(map[int][]string)
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
+		position := pass.Fset.Position(n.Pos())
 		fmt.Printf("### pos %v\n", n.Pos())
-		fmt.Println(pass.Fset.Position(n.Pos()))
+		fmt.Println(position)
 		ast.Print(pass.Fset, n)
-
 		switch n := n.(type) {
-		case *ast.Ident:
-			if n.Name == "Gopher" {
-				pass.Reportf(n.Pos(), "name of identifier must not be ’Gopher’")
+		case *ast.CallExpr:
+			switch f := n.Fun.(type) {
+			case *ast.SelectorExpr:
+				functionName := f.Sel.Name
+				functions[position.Line] = append(functions[position.Line], functionName)
 			}
 		}
+
 	})
 
+	fmt.Println(functions)
 	return nil, nil
 }
