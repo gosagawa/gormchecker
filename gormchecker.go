@@ -1,7 +1,6 @@
 package gormchecker
 
 import (
-	"fmt"
 	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
@@ -33,20 +32,21 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		position := pass.Fset.Position(n.Pos())
-		fmt.Printf("### pos %v\n", n.Pos())
-		fmt.Println(position)
-		ast.Print(pass.Fset, n)
 		switch n := n.(type) {
 		case *ast.CallExpr:
 			switch f := n.Fun.(type) {
 			case *ast.SelectorExpr:
+				if x, ok := f.X.(*ast.Ident); ok && x.Name != "db" {
+					break
+				}
 				functionName := f.Sel.Name
 				functions[position.Line] = append(functions[position.Line], functionName)
+				if len(functions[position.Line]) > 1 {
+					pass.Reportf(n.Pos(), "do not use pipe")
+				}
 			}
 		}
-
 	})
 
-	fmt.Println(functions)
 	return nil, nil
 }
