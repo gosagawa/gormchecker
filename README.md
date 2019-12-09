@@ -23,7 +23,7 @@ $ go vet -vettool=$(which gormchecker) your_check_path
 When Go is lower than 1.12, just run `gormchecker` command with the package name (import path).
 
 ```bash
-$ gorm check your_check_path
+$ gormchecker your_check_path
 ```
 
 ## Example
