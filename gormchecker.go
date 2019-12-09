@@ -28,7 +28,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	nodeFilter := []ast.Node{
 		(*ast.CallExpr)(nil),
 	}
-	functions := make(map[int][]string)
+	functions := make(map[string]map[int][]string)
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		position := pass.Fset.Position(n.Pos())
@@ -40,8 +40,12 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					break
 				}
 				functionName := f.Sel.Name
-				functions[position.Line] = append(functions[position.Line], functionName)
-				if len(functions[position.Line]) > 1 {
+				if _, ok := functions[position.Filename]; !ok {
+					functions[position.Filename] = make(map[int][]string)
+				}
+
+				functions[position.Filename][position.Line] = append(functions[position.Filename][position.Line], functionName)
+				if len(functions[position.Filename][position.Line]) > 1 {
 					pass.Reportf(n.Pos(), "do not use pipe")
 				}
 			}
