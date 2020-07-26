@@ -2,6 +2,7 @@ package gormchecker
 
 import (
 	"go/ast"
+	"go/token"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
@@ -27,12 +28,28 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	nodeFilter := []ast.Node{
 		(*ast.CallExpr)(nil),
+		(*ast.Ident)(nil),
 	}
 	functions := make(map[string]map[int][]string)
+	includeFunctions := make(map[string]map[string]int)
+	var baseFunction string
+	baseFunctionPos := make(map[string]token.Pos)
+	var funcCheckPos token.Pos
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
+
 		position := pass.Fset.Position(n.Pos())
 		switch n := n.(type) {
+		case *ast.Ident:
+			if n.Obj != nil && n.Obj.Kind == ast.Fun && n.Pos() > funcCheckPos {
+
+				//ast.Print(pass.Fset, n)
+				baseFunction = n.Name
+				baseFunctionPos[baseFunction] = n.Pos()
+				decl := n.Obj.Decl.(*ast.FuncDecl)
+				funcCheckPos = decl.Body.Rbrace
+			}
+
 		case *ast.CallExpr:
 			switch f := n.Fun.(type) {
 			case *ast.SelectorExpr:
@@ -44,6 +61,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					functions[position.Filename] = make(map[int][]string)
 				}
 
+				if x, ok := f.X.(*ast.Ident); ok && x.Name == "db" {
+					if _, ok := includeFunctions[baseFunction]; !ok {
+						includeFunctions[baseFunction] = make(map[string]int)
+					}
+					if _, ok := includeFunctions[baseFunction][functionName]; !ok {
+						includeFunctions[baseFunction][functionName] = 0
+					}
+					includeFunctions[baseFunction][functionName]++
+				}
+
 				functions[position.Filename][position.Line] = append(functions[position.Filename][position.Line], functionName)
 				if len(functions[position.Filename][position.Line]) > 1 {
 					pass.Reportf(n.Pos(), "do not use pipe")
@@ -51,6 +78,23 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			}
 		}
 	})
+
+	for baseFunction, v := range includeFunctions {
+		findCount := 0
+		firstCount := 0
+		if i, ok := v["Find"]; ok {
+			findCount = i
+		}
+		if i, ok := v["First"]; ok {
+			firstCount = i
+		}
+		if findCount == 0 && firstCount == 0 {
+			pass.Reportf(baseFunctionPos[baseFunction], "not have Find or First")
+		}
+		if findCount+firstCount > 1 {
+			pass.Reportf(baseFunctionPos[baseFunction], "have two more Find or First")
+		}
+	}
 
 	return nil, nil
 }

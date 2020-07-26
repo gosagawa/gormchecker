@@ -60,6 +60,64 @@ func f3() (*User, error) {
 	return &u, xdb.Error
 }
 
+// not have Find
+func f4() (*User, error) { // want "not have Find or First"
+
+	db, err := getConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	u := User{}
+	db = db.Where("column_a = xxx")
+	db = db.Where("column_b = xxx")
+
+	if db.RecordNotFound() {
+		return nil, nil
+	}
+	return &u, db.Error
+}
+
+// have two Find
+func f5() (*User, error) { // want "have two more Find or First"
+
+	db, err := getConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	u := User{}
+	db = db.Where("column_a = xxx")
+	db = db.Where("column_b = xxx")
+	db = db.Find(&u)
+	db = db.Find(&u)
+
+	if db.RecordNotFound() {
+		return nil, nil
+	}
+	return &u, db.Error
+}
+
+// have two First
+func f6() (*User, error) { // want "have two more Find or First"
+
+	db, err := getConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	u := User{}
+	db = db.Where("column_a = xxx")
+	db = db.Where("column_b = xxx")
+	db = db.First(&u)
+	db = db.First(&u)
+
+	if db.RecordNotFound() {
+		return nil, nil
+	}
+	return &u, db.Error
+}
+
 func getConnection() (*gorm.DB, error) {
 	return nil, nil
 }
