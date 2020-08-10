@@ -98,4 +98,5 @@ func f3() (*User, error) {
 # TODO
 - [ ] check ```db.Find(&u)``` only ( ```db = db.Find(&u)``` is correct )
 - [ ] check First or Find not exist function
+- [ ] check Not using function paramter
 

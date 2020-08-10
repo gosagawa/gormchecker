@@ -21,7 +21,7 @@ func fb1() (*User, error) {
 }
 
 // have two First
-func fb2() (*User, error) { // want "have two more Find or First"
+func fb2() (*User, error) { // want "have two more select function like Find, First"
 
 	db, err := getConnection()
 	if err != nil {

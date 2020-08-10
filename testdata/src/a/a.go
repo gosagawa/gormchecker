@@ -61,7 +61,7 @@ func f3() (*User, error) {
 }
 
 // not have Find
-func f4() (*User, error) { // want "not have Find or First"
+func f4() (*User, error) { // want "not have query execution function like Find, Create, Update"
 
 	db, err := getConnection()
 	if err != nil {
@@ -79,7 +79,7 @@ func f4() (*User, error) { // want "not have Find or First"
 }
 
 // have two Find
-func f5() (*User, error) { // want "have two more Find or First"
+func f5() (*User, error) { // want "have two more select function like Find, First"
 
 	db, err := getConnection()
 	if err != nil {
@@ -99,7 +99,7 @@ func f5() (*User, error) { // want "have two more Find or First"
 }
 
 // have two First
-func f6() (*User, error) { // want "have two more Find or First"
+func f6() (*User, error) { // want "have two more select function like Find, First"
 
 	db, err := getConnection()
 	if err != nil {

@@ -37,10 +37,11 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 
+		file := pass.Fset.File(n.Pos())
 		position := pass.Fset.Position(n.Pos())
 		switch n := n.(type) {
 		case *ast.FuncDecl:
-			baseFunction = n.Name.Name
+			baseFunction = file.Name() + "_" + n.Name.Name
 			baseFunctionPos[baseFunction] = n.Pos()
 		case *ast.CallExpr:
 			switch f := n.Fun.(type) {
@@ -72,19 +73,86 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	})
 
 	for baseFunction, v := range includeFunctions {
-		findCount := 0
-		firstCount := 0
+		createCount := 0
+		updateCount := 0
+		deleteCount := 0
+		whereCount := 0
+		queryFunctionCount := 0
+		queryExecuteFunctionCount := 0
+		selectExecuteFunctionCount := 0
+		isEditFunction := false
 		if i, ok := v["Find"]; ok {
-			findCount = i
+			queryFunctionCount++
+			queryExecuteFunctionCount += i
+			selectExecuteFunctionCount += i
 		}
 		if i, ok := v["First"]; ok {
-			firstCount = i
+			queryFunctionCount += i
+			queryExecuteFunctionCount += i
+			selectExecuteFunctionCount += i
 		}
-		if findCount == 0 && firstCount == 0 {
-			pass.Reportf(baseFunctionPos[baseFunction], "not have Find or First")
+		if i, ok := v["Pluck"]; ok {
+			queryFunctionCount += i
+			queryExecuteFunctionCount += i
+			selectExecuteFunctionCount += i
 		}
-		if findCount+firstCount > 1 {
-			pass.Reportf(baseFunctionPos[baseFunction], "have two more Find or First")
+		if i, ok := v["Scan"]; ok {
+			queryFunctionCount += i
+			queryExecuteFunctionCount += i
+			selectExecuteFunctionCount += i
+		}
+		if i, ok := v["Count"]; ok {
+			queryFunctionCount += i
+			queryExecuteFunctionCount += i
+			selectExecuteFunctionCount += i
+		}
+		if i, ok := v["Create"]; ok {
+			createCount = i
+			queryFunctionCount += i
+			queryExecuteFunctionCount += i
+		}
+		if i, ok := v["Update"]; ok {
+			updateCount = i
+			queryFunctionCount += i
+			isEditFunction = true
+			queryExecuteFunctionCount += i
+		}
+		if i, ok := v["Updates"]; ok {
+			updateCount = i
+			queryFunctionCount += i
+			isEditFunction = true
+			queryExecuteFunctionCount += i
+		}
+		if i, ok := v["Delete"]; ok {
+			deleteCount = i
+			queryFunctionCount++
+			isEditFunction = true
+			queryExecuteFunctionCount++
+		}
+		if i, ok := v["Where"]; ok {
+			whereCount = i
+			queryFunctionCount++
+		}
+		if queryFunctionCount == 0 {
+			continue
+		}
+		if queryExecuteFunctionCount == 0 {
+			pass.Reportf(baseFunctionPos[baseFunction], "not have query execution function like Find, Create, Update")
+		}
+		if selectExecuteFunctionCount > 1 {
+			pass.Reportf(baseFunctionPos[baseFunction], "have two more select function like Find, First")
+		}
+		if createCount > 1 {
+			pass.Reportf(baseFunctionPos[baseFunction], "have two more Create")
+		}
+		if updateCount > 1 {
+			pass.Reportf(baseFunctionPos[baseFunction], "have two more Update")
+		}
+		if deleteCount > 1 {
+			pass.Reportf(baseFunctionPos[baseFunction], "have two more Delete")
+		}
+		if isEditFunction && whereCount == 0 {
+			pass.Reportf(baseFunctionPos[baseFunction], "no where Edit function")
 		}
 	}
 
