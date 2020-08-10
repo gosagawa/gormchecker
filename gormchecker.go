@@ -28,28 +28,20 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	nodeFilter := []ast.Node{
 		(*ast.CallExpr)(nil),
-		(*ast.Ident)(nil),
+		(*ast.FuncDecl)(nil),
 	}
 	functions := make(map[string]map[int][]string)
 	includeFunctions := make(map[string]map[string]int)
 	var baseFunction string
 	baseFunctionPos := make(map[string]token.Pos)
-	var funcCheckPos token.Pos
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 
 		position := pass.Fset.Position(n.Pos())
 		switch n := n.(type) {
-		case *ast.Ident:
-			if n.Obj != nil && n.Obj.Kind == ast.Fun && n.Pos() > funcCheckPos {
-
-				//ast.Print(pass.Fset, n)
-				baseFunction = n.Name
-				baseFunctionPos[baseFunction] = n.Pos()
-				decl := n.Obj.Decl.(*ast.FuncDecl)
-				funcCheckPos = decl.Body.Rbrace
-			}
-
+		case *ast.FuncDecl:
+			baseFunction = n.Name.Name
+			baseFunctionPos[baseFunction] = n.Pos()
 		case *ast.CallExpr:
 			switch f := n.Fun.(type) {
 			case *ast.SelectorExpr:
