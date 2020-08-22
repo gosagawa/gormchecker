@@ -127,7 +127,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			deleteCount = i
 			queryFunctionCount++
 			isEditFunction = true
-			queryExecuteFunctionCount++
+			queryExecuteFunctionCount += i
 		}
 		if i, ok := v["Where"]; ok {
 			whereCount = i
