@@ -9,7 +9,7 @@ Current state is alphe version. Only check pipeed function( make pipe is origina
 You can get `gormchecker` by `go get` command.
 
 ```bash
-$ go get -u github.com/gosagawa/gormchecker
+$ go get -u github.com/gosagawa/gormchecker/cmd/gormchecker
 ```
 
 ## How to use

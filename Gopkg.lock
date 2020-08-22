@@ -2,8 +2,16 @@
 
 
 [[projects]]
+  digest = "1:2199118a5de91125b472c6a71ecd81b636d7ce252f64087e57f1ba5830f1451a"
+  name = "golang.org/x/mod"
+  packages = ["semver"]
+  pruneopts = "UT"
+  revision = "859b3ef565e237f9f1a0fb6b55385c497545680d"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
-  digest = "1:39014391fec13b7fb906c25dcd3f5c6ef8b6b2df84c8ddeb7cce3606b4d8e35a"
+  digest = "1:2486de901d93cd475ae0dab8a820dcea865f149bb82161fb9d1f97b5aa1afa20"
   name = "golang.org/x/tools"
   packages = [
     "go/analysis",
@@ -47,13 +55,34 @@
     "go/packages",
     "go/types/objectpath",
     "go/types/typeutil",
-    "internal/fastwalk",
-    "internal/gopathwalk",
-    "internal/semver",
+    "internal/analysisinternal",
+    "internal/event",
+    "internal/event/core",
+    "internal/event/keys",
+    "internal/event/label",
+    "internal/gocommand",
+    "internal/lsp/diff",
+    "internal/lsp/diff/myers",
+    "internal/lsp/fuzzy",
+    "internal/packagesinternal",
+    "internal/span",
     "internal/testenv",
+    "internal/typesinternal",
+    "txtar",
   ]
   pruneopts = "UT"
-  revision = "259af5ff87bdcd4abf2ecda8edc3f13f04f26a42"
+  revision = "1e23e48ab93b0df83d1e98f3bd8116980cda8cf1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:918a46e4a2fb83df33f668f5a6bd51b2996775d073fce1800d3ec01b0a5ddd2b"
+  name = "golang.org/x/xerrors"
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "UT"
+  revision = "5ec99f83aff198f5fbd629d6c8d8eb38a04218ca"
 
 [solve-meta]
   analyzer-name = "dep"
